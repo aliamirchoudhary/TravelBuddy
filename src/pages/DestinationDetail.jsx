@@ -53,7 +53,7 @@ export default function DestinationDetail() {
 
   return (
     <PageTransition>
-      <div style={{ background: 'var(--paper)', minHeight: '100vh' }}>
+      <div style={{ background: 'var(--ink)', minHeight: '100vh' }}>
 
         {/* Hero */}
         <div style={{
@@ -197,16 +197,16 @@ export default function DestinationDetail() {
             {activeTab === 'overview' && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'start', flexWrap: 'wrap' }}>
                 <div>
-                  <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: 'var(--ink)', marginBottom: 14 }}>About {dest.name}</h2>
+                  <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: 'var(--paper)', marginBottom: 14 }}>About {dest.name}</h2>
                   <p style={{ color: 'var(--muted)', fontSize: 15, lineHeight: 1.85, marginBottom: 28 }}>{dest.desc}</p>
 
-                  <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--ink)', marginBottom: 14 }}>Top Attractions</h3>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--paper)', marginBottom: 14 }}>Top Attractions</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {dest.attractions.slice(0, 3).map((a, i) => (
                       <div key={a} style={{
                         display: 'flex', alignItems: 'center', gap: 12,
                         padding: '12px 16px',
-                        background: 'var(--cream)',
+                        background: 'var(--surface3)',
                         border: '1px solid var(--border)',
                         borderRadius: 10,
                       }}>
@@ -219,7 +219,7 @@ export default function DestinationDetail() {
                           fontFamily: 'var(--font-heading)',
                           fontSize: 11, fontWeight: 700,
                         }}>{i + 1}</span>
-                        <span style={{ color: 'var(--ink)', fontSize: 14, fontWeight: 600 }}>{a}</span>
+                        <span style={{ color: 'var(--paper)', fontSize: 14, fontWeight: 600 }}>{a}</span>
                       </div>
                     ))}
                   </div>
@@ -246,18 +246,18 @@ export default function DestinationDetail() {
 
             {activeTab === 'attractions' && (
               <div>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--ink)', marginBottom: 24 }}>Things to Do in {dest.name}</h2>
+                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--paper)', marginBottom: 24 }}>Things to Do in {dest.name}</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
                   {dest.attractions.map((a, i) => (
                     <div key={a} style={{
                       padding: '18px 18px',
-                      background: 'var(--cream)',
+                      background: 'var(--surface3)',
                       border: '1px solid var(--border)',
                       borderRadius: 10,
                       display: 'flex', alignItems: 'center', gap: 12,
                     }}>
                       <Camera size={16} style={{ color: dest.color, flexShrink: 0 }} />
-                      <span style={{ color: 'var(--ink)', fontSize: 14, fontWeight: 600 }}>{a}</span>
+                      <span style={{ color: 'var(--paper)', fontSize: 14, fontWeight: 600 }}>{a}</span>
                     </div>
                   ))}
                 </div>
@@ -266,19 +266,19 @@ export default function DestinationDetail() {
 
             {activeTab === 'hotels' && (
               <div>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--ink)', marginBottom: 24 }}>Where to Stay</h2>
+                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--paper)', marginBottom: 24 }}>Where to Stay</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {dest.hotels.map((h) => (
                     <div key={h} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '18px 20px',
-                      background: 'var(--cream)',
+                      background: 'var(--surface3)',
                       border: '1px solid var(--border)',
                       borderRadius: 10,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <Hotel size={16} style={{ color: dest.color }} />
-                        <span style={{ color: 'var(--ink)', fontSize: 14, fontWeight: 600 }}>{h}</span>
+                        <span style={{ color: 'var(--paper)', fontSize: 14, fontWeight: 600 }}>{h}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Star size={12} fill="#c9a227" style={{ color: '#c9a227' }} />
@@ -292,19 +292,19 @@ export default function DestinationDetail() {
 
             {activeTab === 'restaurants' && (
               <div>
-                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--ink)', marginBottom: 24 }}>Where to Eat</h2>
+                <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--paper)', marginBottom: 24 }}>Where to Eat</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {dest.restaurants.map(r => (
                     <div key={r} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '18px 20px',
-                      background: 'var(--cream)',
+                      background: 'var(--surface3)',
                       border: '1px solid var(--border)',
                       borderRadius: 10,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <Utensils size={16} style={{ color: dest.color }} />
-                        <span style={{ color: 'var(--ink)', fontSize: 14, fontWeight: 600 }}>{r}</span>
+                        <span style={{ color: 'var(--paper)', fontSize: 14, fontWeight: 600 }}>{r}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <Star size={12} fill="#c9a227" style={{ color: '#c9a227' }} />
@@ -319,14 +319,14 @@ export default function DestinationDetail() {
             {activeTab === 'reviews' && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                  <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--ink)' }}>Traveler Reviews</h2>
+                  <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: 'var(--paper)' }}>Traveler Reviews</h2>
                   <button className="btn btn-primary" style={{ fontSize: 12, padding: '8px 18px' }}>Write a Review</button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {reviews.map((r, i) => (
                     <div key={i} style={{
                       padding: '20px',
-                      background: 'var(--cream)',
+                      background: 'var(--surface3)',
                       border: '1px solid var(--border)',
                       borderRadius: 10,
                     }}>
@@ -334,7 +334,7 @@ export default function DestinationDetail() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <span style={{ fontSize: 24 }}>{r.avatar}</span>
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--paper)', display: 'flex', alignItems: 'center', gap: 6 }}>
                               {r.name}
                               {r.verified && <span style={{ background: 'rgba(31,138,85,0.12)', color: 'var(--accent3)', fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: '2px 7px', borderRadius: 10 }}>VERIFIED</span>}
                             </div>

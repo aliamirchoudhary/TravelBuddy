@@ -110,7 +110,7 @@ export default function Messages() {
     <PageTransition>
       <div style={{
         height: '100vh',
-        paddingTop: 60,
+        paddingTop: 72,
         display: 'flex',
         background: 'var(--ink)',
         overflow: 'hidden',

@@ -88,21 +88,21 @@ export default function VloggerHub() {
         {/* ── HERO ── */}
         <div style={{
           padding: 'clamp(90px, 10vw, 130px) 0 50px',
-          background: 'linear-gradient(180deg, #0d0516 0%, #1a0d26 50%, #0a0e1a 100%)',
+          background: 'var(--surface)',
           position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', top: -100, left: '30%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,61,202,0.15) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `linear-gradient(rgba(255,253,248,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,253,248,0.02) 1px, transparent 1px)`, backgroundSize: '50px 50px', pointerEvents: 'none' }} />
+          <div className="grid-overlay" />
+          <div style={{ position: 'absolute', top: -100, left: '30%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(123,97,255,0.12) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
 
           <div className="container" style={{ position: 'relative', zIndex: 1 }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 18,
                 padding: '6px 14px', borderRadius: 100,
-                background: 'rgba(139,61,202,0.15)', border: '1px solid rgba(139,61,202,0.3)',
+                background: 'rgba(123,97,255,0.12)', border: '1px solid rgba(123,97,255,0.25)',
               }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8b3dca', display: 'inline-block' }} />
-                <span style={{ fontFamily: 'var(--font-heading)', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: '#b57ce0' }}>Creator Platform</span>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent2)', display: 'inline-block', boxShadow: '0 0 8px var(--accent2)' }} />
+                <span style={{ fontFamily: 'var(--font-heading)', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--accent2)' }}>Creator Platform</span>
               </div>
 
               <h1 className="display-heading" style={{ fontSize: 'clamp(36px, 7vw, 72px)', color: 'var(--paper)', marginBottom: 14 }}>
@@ -130,7 +130,7 @@ export default function VloggerHub() {
         </div>
 
         {/* ── TAB NAVIGATION ── */}
-        <div style={{ background: 'rgba(10,14,26,0.95)', borderBottom: '1px solid rgba(255,253,248,0.06)', position: 'sticky', top: 60, zIndex: 100, backdropFilter: 'blur(20px)' }}>
+        <div style={{ background: 'var(--surface2)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 72, zIndex: 100, backdropFilter: 'blur(20px)' }}>
           <div className="container">
             <div style={{ display: 'flex', gap: 0, overflow: 'auto' }}>
               {tabs.map(({ id, label, icon: Icon }) => (

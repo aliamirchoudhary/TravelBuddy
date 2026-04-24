@@ -67,7 +67,7 @@ export default function UserProfile() {
 
   return (
     <PageTransition>
-      <div style={{ background: 'var(--paper)', minHeight: '100vh' }}>
+      <div style={{ background: 'var(--ink)', minHeight: '100vh' }}>
 
         {/* ── COVER + AVATAR ── */}
         <div style={{
@@ -217,11 +217,11 @@ export default function UserProfile() {
                           </div>
                           <div style={{
                             flex: 1, padding: '13px 16px',
-                            background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 10, marginBottom: 4,
+                            background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: 10, marginBottom: 4,
                           }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
                               <div>
-                                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--ink)', marginBottom: 3 }}>{trip.dest}</h3>
+                                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--paper)', marginBottom: 3 }}>{trip.dest}</h3>
                                 <p style={{ color: 'var(--muted)', fontSize: 12 }}>{trip.dates}</p>
                               </div>
                               <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
@@ -256,11 +256,11 @@ export default function UserProfile() {
                   {activeTab === 'reviews' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       {reviews.map((r, i) => (
-                        <div key={i} style={{ padding: '18px 18px 20px', background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 10 }}>
+                        <div key={i} style={{ padding: '18px 18px 20px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: 10 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <span style={{ fontSize: 20 }}>{r.emoji}</span>
-                              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>{r.dest}</span>
+                              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--paper)' }}>{r.dest}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <div style={{ display: 'flex', gap: 2 }}>
@@ -281,11 +281,11 @@ export default function UserProfile() {
                       {buddyHistory.map((b, i) => (
                         <div key={i} style={{
                           display: 'flex', alignItems: 'center', gap: 14,
-                          padding: '14px 18px', background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 10,
+                          padding: '14px 18px', background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: 10,
                         }}>
                           <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--paper)', border: '2px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{b.avatar}</div>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--ink)', marginBottom: 3 }}>{b.name}</div>
+                            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--paper)', marginBottom: 3 }}>{b.name}</div>
                             <div style={{ color: 'var(--muted)', fontSize: 12 }}>Trip: {b.trip} · {b.date}</div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -304,7 +304,7 @@ export default function UserProfile() {
                         <motion.div key={b.name} whileHover={{ y: -3 }}
                           style={{
                             padding: '20px 18px', textAlign: 'center',
-                            background: 'var(--cream)', border: `1px solid ${b.color}30`, borderRadius: 'var(--r-md)',
+                            background: 'var(--surface3)', border: `1px solid ${b.color}30`, borderRadius: 'var(--r-md)',
                             transition: 'box-shadow 0.2s',
                           }}
                           onMouseEnter={e => e.currentTarget.style.boxShadow = `0 8px 24px ${b.color}20`}
@@ -316,7 +316,7 @@ export default function UserProfile() {
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: 26, margin: '0 auto 12px',
                           }}>{b.emoji}</div>
-                          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--ink)', marginBottom: 5 }}>{b.name}</div>
+                          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--paper)', marginBottom: 5 }}>{b.name}</div>
                           <div style={{ color: 'var(--muted)', fontSize: 11, lineHeight: 1.5 }}>{b.desc}</div>
                         </motion.div>
                       ))}
@@ -331,8 +331,8 @@ export default function UserProfile() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }} className="hide-mobile">
 
               {/* About card */}
-              <div style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '18px 18px 20px' }}>
-                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--ink)', marginBottom: 12 }}>About</h3>
+              <div style={{ background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '18px 18px 20px' }}>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--paper)', marginBottom: 12 }}>About</h3>
                 <p style={{ color: 'var(--muted)', fontSize: 12, lineHeight: 1.7, marginBottom: 16 }}>{profile.bio}</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {[
@@ -342,15 +342,15 @@ export default function UserProfile() {
                   ].map(({ label, value }) => (
                     <div key={label}>
                       <span style={{ fontFamily: 'var(--font-heading)', fontSize: 9, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--muted)', display: 'block', marginBottom: 2 }}>{label}</span>
-                      <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>{value}</span>
+                      <span style={{ fontSize: 12, color: 'var(--paper)', fontWeight: 600 }}>{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Top badges preview */}
-              <div style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '18px 18px 20px' }}>
-                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--ink)', marginBottom: 14 }}>
+              <div style={{ background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '18px 18px 20px' }}>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--paper)', marginBottom: 14 }}>
                   <Award size={13} style={{ display: 'inline', marginRight: 6 }} />Achievements
                 </h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -372,15 +372,15 @@ export default function UserProfile() {
               </div>
 
               {/* Expense History */}
-              <div style={{ background: 'var(--cream)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '18px 18px 20px' }}>
-                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--ink)', marginBottom: 12 }}>💰 Expense History</h3>
+              <div style={{ background: 'var(--surface3)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '18px 18px 20px' }}>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 13, color: 'var(--paper)', marginBottom: 12 }}>💰 Expense History</h3>
                 {[
                   { trip: 'Kyoto', amount: '$2,840', split: 'Split with Luca' },
                   { trip: 'Marrakech', amount: '$1,640', split: 'Solo' },
                 ].map(e => (
                   <div key={e.trip} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{e.trip}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--paper)' }}>{e.trip}</div>
                       <div style={{ fontSize: 10, color: 'var(--muted)' }}>{e.split}</div>
                     </div>
                     <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'var(--accent)' }}>{e.amount}</span>
