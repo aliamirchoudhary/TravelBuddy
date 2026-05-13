@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, ArrowRight, User, Mail, Lock } from 'lucide-react'
-import { useAuth } from '../context/AuthContext.jsx'
+import { Eye, EyeOff, ArrowRight, User, Mail, Lock, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import api from '../services/api.js'
 import PageTransition from '../components/PageTransition.jsx'
 import ParticleField from '../components/ParticleField.jsx'
 
 const roles = [
-  { value: 'traveler',   emoji: '🧭', label: 'Traveler',          desc: 'Plan trips & find buddies',          color: 'var(--accent)' },
-  { value: 'vlogger',    emoji: '🎥', label: 'Vlogger / Creator', desc: 'Create content & monetize',          color: '#FF61D8' },
-  { value: 'companion',  emoji: '🤝', label: 'Companion',         desc: 'Find travel partners',               color: 'var(--accent3)' },
+  { value: 'traveller',  emoji: '🧭', label: 'Traveller',          desc: 'Plan trips & find buddies',   color: 'var(--accent)' },
+  { value: 'creator',    emoji: '🎥', label: 'Vlogger / Creator',  desc: 'Create content & monetize',   color: '#FF61D8' },
+  { value: 'traveller',  emoji: '🤝', label: 'Companion',          desc: 'Find travel partners',        color: 'var(--accent3)' },
 ]
 
 export default function Signup() {
@@ -18,7 +18,7 @@ export default function Signup() {
   const [form, setForm] = useState({ name: '', email: '', password: '', role: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const [registered, setRegistered] = useState(false)
   const navigate = useNavigate()
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -27,20 +27,83 @@ export default function Signup() {
   const handleStep1 = (e) => {
     e.preventDefault()
     if (!form.name || !form.email || !form.password) { toast.error('Please fill all fields'); return }
-    if (form.password.length < 6) { toast.error('Password must be 6+ characters'); return }
+    if (form.password.length < 8) { toast.error('Password must be 8+ characters'); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { toast.error('Invalid email format'); return }
     setStep(2)
   }
 
   const handleFinal = async () => {
     if (!form.role) { toast.error('Please select your travel style'); return }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1400))
-    login({ name: form.name, email: form.email, role: form.role })
-    toast.success(`Welcome to TravelBuddy, ${form.name}!`)
-    navigate('/')
+
+    try {
+      await api.post('/auth/register', {
+        email: form.email,
+        password: form.password,
+        displayName: form.name,
+      })
+      setRegistered(true)
+      toast.success('Account created! You can now log in.')
+    } catch (err) {
+      const errMsg = err.response?.data?.error || 'Registration failed. Please try again.'
+      toast.error(errMsg)
+    }
+
+    setLoading(false)
   }
 
-  const selectedRoleColor = roles.find(r => r.value === form.role)?.color || 'var(--accent)'
+  // Success state — show verification prompt
+  if (registered) {
+    return (
+      <PageTransition>
+        <div style={{
+          minHeight: '100vh', background: 'var(--ink)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 'clamp(80px,10vw,120px) clamp(20px,5vw,40px)',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <ParticleField count={30} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{
+              maxWidth: 480, width: '100%', textAlign: 'center',
+              background: 'rgba(10,22,40,0.85)', backdropFilter: 'blur(20px)',
+              border: '1px solid var(--border)', borderRadius: 'var(--r-lg)',
+              padding: 'clamp(40px,5vw,60px)', position: 'relative', zIndex: 1,
+              boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
+            }}
+          >
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%', margin: '0 auto 24px',
+              background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))',
+              border: '2px solid rgba(34,197,94,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <CheckCircle size={28} style={{ color: '#22c55e' }} />
+            </div>
+            <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 24, fontWeight: 800, color: 'var(--paper)', marginBottom: 12 }}>
+              Account Created!
+            </h1>
+            <p style={{ color: 'var(--paper-dim)', fontSize: 14, lineHeight: 1.7, marginBottom: 32, maxWidth: 360, margin: '0 auto 32px' }}>
+              Welcome to the family! Your account for <strong style={{ color: 'var(--accent)' }}>{form.email}</strong> is ready.
+              You can now log in and start your journey.
+            </p>
+            <Link
+              to="/login"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', justifyContent: 'center', padding: '14px 40px' }}
+            >
+              Go to Login <ArrowRight size={14} />
+            </Link>
+            <p style={{ color: 'var(--paper-dim)', fontSize: 11, marginTop: 20 }}>
+              Need help? Contact support.
+            </p>
+          </motion.div>
+        </div>
+      </PageTransition>
+    )
+  }
 
   return (
     <PageTransition>
@@ -52,7 +115,6 @@ export default function Signup() {
       }}>
         <ParticleField count={50} />
         <div className="grid-overlay" />
-        {/* Glow orb */}
         <div style={{
           position: 'absolute', top: '10%', left: '20%',
           width: 500, height: 500, borderRadius: '50%',
@@ -108,7 +170,7 @@ export default function Signup() {
                   {[
                     { key: 'name',     label: 'Full Name', icon: User,  type: 'text',     placeholder: 'Your full name' },
                     { key: 'email',    label: 'Email',     icon: Mail,  type: 'email',    placeholder: 'you@example.com' },
-                    { key: 'password', label: 'Password',  icon: Lock,  type: showPass ? 'text' : 'password', placeholder: 'Min. 6 characters' },
+                    { key: 'password', label: 'Password',  icon: Lock,  type: showPass ? 'text' : 'password', placeholder: 'Min. 8 characters' },
                   ].map(({ key, label, icon: Icon, type, placeholder }) => (
                     <div key={key}>
                       <label style={{ fontFamily: 'var(--font-heading)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--paper-dim)', display: 'block', marginBottom: 7 }}>{label}</label>
@@ -116,7 +178,7 @@ export default function Signup() {
                         <Icon size={14} style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)' }} />
                         <input className="input" name={key} type={type} placeholder={placeholder} value={form[key]} onChange={handleChange} style={{ paddingLeft: 42, paddingRight: key === 'password' ? 42 : 16 }} />
                         {key === 'password' && (
-                          <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)' }}>
+                          <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)', background: 'none', border: 'none', cursor: 'pointer' }}>
                             {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                           </button>
                         )}
@@ -139,7 +201,7 @@ export default function Signup() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
                   {roles.map(({ value, emoji, label, desc, color }) => (
-                    <button key={value} type="button" onClick={() => selectRole(value)} style={{
+                    <button key={label} type="button" onClick={() => selectRole(value)} style={{
                       display: 'flex', alignItems: 'center', gap: 16,
                       padding: '16px 18px',
                       background: form.role === value ? `${color}12` : 'rgba(255,255,255,0.03)',

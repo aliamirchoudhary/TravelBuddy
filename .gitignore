@@ -4,3 +4,20 @@ dist/
 .env.local
 .DS_Store
 *.log
+server/node_modules/
+server/.env
+
+# Editor and local tool state
+.vscode/
+.sixth/
+
+# Generated logs and temporary artifacts
+build.log
+server_output.log
+vite.config.js.timestamp-*.mjs
+
+# Server-only scratch workspace
+server/scratch/
+
+# Keep docs out of the repo snapshot
+docs/

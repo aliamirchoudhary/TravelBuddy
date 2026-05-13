@@ -1,29 +1,42 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, ArrowRight, Mail, Lock } from 'lucide-react'
-import { useAuth } from '../context/AuthContext.jsx'
+import { ArrowRight, Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import useAuthStore from '../store/authStore'
 import toast from 'react-hot-toast'
 import PageTransition from '../components/PageTransition.jsx'
 import ParticleField from '../components/ParticleField.jsx'
 
 export default function Login() {
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const [error, setError] = useState('')
+  const { login } = useAuthStore()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.email || !form.password) { toast.error('Please fill in all fields'); return }
+    setError('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    login({ name: form.email.split('@')[0], email: form.email, role: 'traveler' })
-    toast.success('Welcome back, explorer!')
-    navigate('/')
-    setLoading(false)
+    try {
+      await login(email, password)
+      toast.success('Welcome back!')
+      navigate('/social-hub')
+    } catch (err) {
+      const errMsg = err.response?.data?.error || 'Login failed. Please try again.'
+      const errCode = err.response?.data?.code
+      if (errCode === 'EMAIL_NOT_VERIFIED') {
+        setError('Please verify your email before logging in. Check your inbox.')
+      } else {
+        setError(errMsg)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
+
 
   return (
     <PageTransition>
@@ -40,7 +53,6 @@ export default function Login() {
         }} className="hide-mobile">
           <ParticleField count={40} opacity={0.6} />
           <div className="grid-overlay" />
-          {/* Cyan orb */}
           <div style={{
             position: 'absolute', top: -100, right: -80,
             width: 400, height: 400, borderRadius: '50%',
@@ -66,32 +78,29 @@ export default function Login() {
               color: 'var(--paper)', lineHeight: 1.05, marginBottom: 16,
               letterSpacing: '-0.03em',
             }}>
-              Welcome<br />back,<br /><span style={{ color: 'var(--accent)' }}>explorer.</span>
+              Welcome<br /><span style={{ color: 'var(--accent)' }}>Back.</span>
             </h2>
             <p style={{ color: 'var(--paper-muted)', fontSize: 15, lineHeight: 1.8, maxWidth: 320, marginBottom: 40 }}>
-              Your next adventure is waiting. Sign in to access your trips, buddies, and the travel community.
+              Sign in to continue planning your adventures, connecting with travel buddies, and exploring the world.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Trust indicators */}
+            <div style={{ display: 'flex', gap: 24 }}>
               {[
-                { emoji: '🌍', text: '195+ countries in our database' },
-                { emoji: '🤝', text: '12,000+ successful buddy matches' },
-                { emoji: '⭐', text: '4.9 avg rating from 50k travelers' },
-              ].map(({ emoji, text }) => (
-                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 36, height: 36,
-                    background: 'var(--accent-dim)', border: '1px solid var(--border-cyan)',
-                    borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-                  }}>{emoji}</div>
-                  <span style={{ color: 'var(--paper-muted)', fontSize: 13 }}>{text}</span>
+                { label: '50K+', desc: 'Travelers' },
+                { label: '120+', desc: 'Countries' },
+                { label: '4.9★', desc: 'Rating' },
+              ].map(({ label, desc }) => (
+                <div key={desc}>
+                  <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, color: 'var(--accent)' }}>{label}</div>
+                  <div style={{ color: 'var(--paper-dim)', fontSize: 11 }}>{desc}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right — Form */}
+        {/* Right — Login Form */}
         <div style={{
           display: 'flex', flexDirection: 'column',
           justifyContent: 'center',
@@ -105,80 +114,86 @@ export default function Login() {
             transition={{ duration: 0.5 }}
             style={{ maxWidth: 380, width: '100%', margin: '0 auto' }}
           >
-            {/* Mobile logo */}
-            <div className="hide-desktop" style={{ marginBottom: 32 }}>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-                <div style={{ width: 34, height: 34, background: 'var(--accent)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✈️</div>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 17, color: 'var(--paper)' }}>
-                  Travel<span style={{ color: 'var(--accent)' }}>Buddy</span>
-                </span>
-              </Link>
-            </div>
-
             <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 26, fontWeight: 800, color: 'var(--paper)', marginBottom: 6 }}>
-              Sign in
+              Sign In
             </h1>
-            <p style={{ color: 'var(--paper-dim)', fontSize: 13, marginBottom: 32 }}>
-              New here? <Link to="/signup" style={{ color: 'var(--accent)', fontWeight: 600 }}>Create an account</Link>
+            <p style={{ color: 'var(--paper-dim)', fontSize: 13, marginBottom: 28 }}>
+              Enter your credentials to access your account.
             </p>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* Email */}
+            {error && (
+              <div style={{
+                background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)',
+                borderRadius: 'var(--r-md)', padding: '12px 16px', marginBottom: 20,
+                color: '#fca5a5', fontSize: 13, lineHeight: 1.5,
+              }}>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ fontFamily: 'var(--font-heading)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--paper-dim)', display: 'block', marginBottom: 8 }}>Email</label>
+                <label style={{ fontFamily: 'var(--font-heading)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--paper-dim)', display: 'block', marginBottom: 7 }}>Email</label>
                 <div style={{ position: 'relative' }}>
-                  <Mail size={15} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)' }} />
-                  <input className="input" type="email" name="email" placeholder="you@example.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} style={{ paddingLeft: 44 }} />
+                  <Mail size={14} style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)' }} />
+                  <input
+                    className="input"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    id="login-email"
+                    style={{ paddingLeft: 42 }}
+                  />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <label style={{ fontFamily: 'var(--font-heading)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--paper-dim)' }}>Password</label>
-                  <a href="#" style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>Forgot?</a>
-                </div>
+                <label style={{ fontFamily: 'var(--font-heading)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--paper-dim)', display: 'block', marginBottom: 7 }}>Password</label>
                 <div style={{ position: 'relative' }}>
-                  <Lock size={15} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)' }} />
-                  <input className="input" type={showPass ? 'text' : 'password'} name="password" placeholder="••••••••" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} style={{ paddingLeft: 44, paddingRight: 44 }} />
-                  <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)', transition: 'color 0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.color = 'var(--paper)'}
-                    onMouseLeave={e => e.currentTarget.style.color = 'var(--paper-dim)'}
-                  >
-                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  <Lock size={14} style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)' }} />
+                  <input
+                    className="input"
+                    type={showPass ? 'text' : 'password'}
+                    placeholder="Min. 8 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    id="login-password"
+                    style={{ paddingLeft: 42, paddingRight: 42 }}
+                  />
+                  <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--paper-dim)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
               </div>
 
-              <motion.button type="submit" disabled={loading} className="btn btn-primary" style={{ marginTop: 8, width: '100%', justifyContent: 'center', padding: '14px 20px', fontSize: 14 }} whileTap={{ scale: 0.98 }}>
-                {loading
-                  ? <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ width: 16, height: 16, border: '2px solid rgba(5,11,20,0.3)', borderTopColor: 'var(--ink)', borderRadius: '50%' }} />
-                  : <><span>Sign In</span><ArrowRight size={15} /></>
-                }
-              </motion.button>
+              <div style={{ textAlign: 'right' }}>
+                <Link to="/forgot-password" style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>
+                  Forgot password?
+                </Link>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary"
+                id="login-submit"
+                style={{ marginTop: 6, width: '100%', justifyContent: 'center', padding: '14px' }}
+              >
+                {loading ? (
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ width: 16, height: 16, border: '2px solid rgba(5,11,20,0.3)', borderTopColor: 'var(--ink)', borderRadius: '50%' }} />
+                ) : (
+                  <>Sign In <ArrowRight size={14} /></>
+                )}
+              </button>
             </form>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
-              <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-              <span style={{ color: 'var(--paper-dim)', fontSize: 10, fontFamily: 'var(--font-heading)', letterSpacing: 2 }}>OR</span>
-              <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-            </div>
-
-            {[{ emoji: '🔵', provider: 'Google' }, { emoji: '⚫', provider: 'GitHub' }].map(({ emoji, provider }) => (
-              <button key={provider} style={{
-                width: '100%', padding: '12px 20px', marginBottom: 8,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
-                borderRadius: 'var(--r-md)', color: 'var(--paper)',
-                fontFamily: 'var(--font-heading)', fontSize: 13, fontWeight: 600,
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor = 'var(--border-cyan)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'var(--border)' }}
-              >
-                <span>{emoji}</span> Continue with {provider}
-              </button>
-            ))}
+            <p style={{ textAlign: 'center', color: 'var(--paper-dim)', fontSize: 13, marginTop: 24 }}>
+              Don't have an account?{' '}
+              <Link to="/signup" style={{ color: 'var(--accent)', fontWeight: 700 }}>Sign up</Link>
+            </p>
           </motion.div>
         </div>
       </div>

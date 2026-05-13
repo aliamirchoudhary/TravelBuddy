@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useScroll, useTransform, motion } from 'framer-motion'
 import LiveBackground from './LiveBackground.jsx'
 import ParticleField from './ParticleField.jsx'
 import Sidebar from './Sidebar.jsx'
 
 export default function StitchShell({ children }) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const { scrollY } = useScroll()
   const y1 = useTransform(scrollY, [0, 1200], [0, -80])
   const y2 = useTransform(scrollY, [0, 1200], [0, 120])
@@ -31,20 +32,21 @@ export default function StitchShell({ children }) {
 
       {/* Sidebar for larger screens */}
       <div className="hide-mobile">
-        <Sidebar />
+        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </div>
 
-      <div
+      <motion.div
         className="stitch-content"
+        animate={{ marginLeft: isCollapsed ? 80 : 280 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
         style={{
           position: 'relative',
           zIndex: 20,
-          marginLeft: '280px', // Account for sidebar width
           minHeight: '100vh',
         }}
       >
         {children}
-      </div>
+      </motion.div>
     </div>
   )
 }

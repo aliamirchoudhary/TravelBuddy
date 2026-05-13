@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer'
 import { Heart, MessageCircle, Share2, Bookmark, Star, Users, TrendingUp, Award, ArrowRight, Play } from 'lucide-react'
 import Footer from '../components/Footer.jsx'
 import PageTransition from '../components/PageTransition.jsx'
+import LeaderboardWidget from '../components/social/LeaderboardWidget.jsx'
 
 const posts = [
   { id: 1, user: 'Mia Chen',        avatar: '📸', location: 'Kyoto, Japan',        content: "Cherry blossom season in Kyoto is absolutely surreal — woke up at 4am to catch this view before the crowds. The Philosopher's Path at dawn is something everyone should experience at least once.", likes: 2341, comments: 89,  tag: '🌸 Culture',   color: '#7B61FF', badge: 'Verified Traveler', type: 'photo' },
@@ -136,7 +137,10 @@ function PostCard({ post, index }) {
 
           {/* Plan CTA */}
           <button
-            onClick={() => navigate(`/plan?dest=${post.location}`)}
+            onClick={() => {
+              const cityName = post.location.split(',')[0].trim()
+              navigate(`/explore?search=${encodeURIComponent(cityName)}`)
+            }}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '7px 16px', marginBottom: 16,
@@ -387,24 +391,8 @@ export default function SocialHub() {
                 </div>
               </SidebarCard>
 
-              {/* Badges Feed */}
-              <SidebarCard title={<><Award size={12} style={{ display: 'inline', marginRight: 5 }} />Recent Badges</>}>
-                <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {badges.map(b => (
-                    <div key={b.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 8,
-                        background: `${b.color}18`, border: `1px solid ${b.color}30`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15,
-                      }}>{b.emoji}</div>
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--paper)' }}>{b.name}</div>
-                        <div style={{ fontSize: 10, color: 'var(--paper-dim)' }}>Earned by {b.user}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </SidebarCard>
+              {/* Leaderboard Widget */}
+              <LeaderboardWidget />
 
             </div>
           </div>

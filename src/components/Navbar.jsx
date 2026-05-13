@@ -1,244 +1,304 @@
-import { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Compass, Map, Users, MessageCircle, Video, Search, Bell, User, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, Compass, Map, Users, Video, Bell, User, LogOut, ChevronDown } from 'lucide-react';
+import useAuthStore from '../store/authStore';
+import useGatewayStore from '../store/gatewayStore';
 
 const navLinks = [
-  { to: '/explore',  label: 'Explore',   icon: Compass },
-  { to: '/plan',     label: 'Maps',      icon: Map },
-  { to: '/buddy',    label: 'Buddies',   icon: Users },
-  { to: '/social',   label: 'Community', icon: MessageCircle },
-  { to: '/vloggers', label: 'Vlogs',     icon: Video },
-]
+  { to: '/explore', label: 'Explore', icon: Compass },
+  { to: '/planner/new', label: 'Plan a Trip', icon: Map, needsAuth: true },
+  { to: '/find-buddy', label: 'Find a Buddy', icon: Users, needsAuth: true },
+  { to: '/vlogger-hub', label: 'Vloggers', icon: Video },
+];
 
-export default function Navbar() {
-  const [scrolled, setScrolled]   = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [q, setQ] = useState('')
-  const location = useLocation()
-  const navigate = useNavigate()
+const Navbar = ({ scrollRefs }) => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
 
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuthStore();
+  const { resetGateway } = useGatewayStore();
+
+  const isLanding = location.pathname === '/';
+
+  // ── Scroll shadow ──
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  useEffect(() => { setMobileOpen(false) }, [location.pathname])
+  // ── Active section tracker (landing page only) ──
+  useEffect(() => {
+    if (!isLanding) return;
+    const ids = ['hero', 'features', 'trending', 'stats', 'footer'];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { threshold: 0.3 }
+    );
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [isLanding]);
 
-  const submitSearch = (e) => {
-    e.preventDefault()
-    const t = q.trim()
-    if (!t) return
-    navigate(`/explore?q=${encodeURIComponent(t)}`)
-    setQ('')
-  }
+  // Close mobile menu on route change
+  useEffect(() => setMobileOpen(false), [location.pathname]);
+
+  // ── Link click handler ──
+  // If user is unauthenticated and link needs auth → show gateway on landing,
+  // or navigate to landing first and then gateway resets.
+  const handleLinkClick = (e, link) => {
+    if (link.needsAuth && !isAuthenticated) {
+      e.preventDefault();
+      resetGateway();
+      if (location.pathname !== '/') {
+        navigate('/');
+      } else {
+        window.__tbScroll?.hero();
+      }
+    }
+  };
+
+  // ── Logo click: if on landing scroll to top, else navigate home ──
+  const handleLogoClick = (e) => {
+    if (isLanding) {
+      e.preventDefault();
+      window.__tbScroll?.hero();
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  // Utility: is a nav link currently "active"?
+  const isActive = (link) => {
+    if (!isLanding) return location.pathname === link.to;
+    // On landing page, no nav link is "active" — we use section highlighting instead
+    return false;
+  };
 
   return (
-    <>
-      <motion.nav
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
-        className="glass"
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-          height: 72,
-          borderBottom: scrolled ? '1px solid var(--border-cyan)' : '1px solid var(--border)',
-          transition: 'all 0.3s ease',
-        }}
-      >
-        <div className="container" style={{
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-          padding: '0 24px',
-        }}>
-          {/* Logo */}
-          <Link to="/" style={{
-            display: 'flex', alignItems: 'center', gap: 12,
-            textDecoration: 'none', flexShrink: 0
-          }}>
-            <div style={{
-              width: 40, height: 40,
-              background: 'var(--grad-cyan)',
-              borderRadius: 'var(--r-md)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, fontWeight: 900,
-              color: 'var(--ink)',
-              boxShadow: 'var(--shadow-cyan)',
-            }}>A</div>
-            <span className="display-heading" style={{
-              fontSize: 20, color: 'var(--paper)',
-              letterSpacing: '-0.03em',
-            }}>
-              Auteur
-            </span>
-          </Link>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${scrolled
+        ? 'bg-[#030712]/90 backdrop-blur-md border-b border-white/10 py-3 shadow-lg'
+        : 'bg-transparent py-5'
+        }`}
+    >
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
 
-          {/* Desktop Nav Links */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8, flex: 1,
-            justifyContent: 'center'
-          }} className="hide-mobile">
-            {navLinks.map(({ to, label }) => {
-              const active = location.pathname === to || location.pathname.startsWith(to + '/')
-              return (
-                <Link
-                  key={to} to={to}
-                  className="btn-ghost"
-                  style={{
-                    fontSize: 13, fontWeight: 600,
-                    color: active ? 'var(--accent)' : 'var(--paper-muted)',
-                    borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {label}
-                </Link>
-              )
-            })}
+        {/* ── Logo ── */}
+        <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 group">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
+            <span className="text-white font-black text-xl">T</span>
           </div>
+          <span className="text-2xl font-black text-white tracking-tighter">TravelBuddy</span>
+        </Link>
 
-          {/* Right Actions */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0
-          }} className="hide-mobile">
-            {/* Search */}
-            <form onSubmit={submitSearch} style={{ width: 240 }}>
-              <div style={{ position: 'relative' }}>
-                <Search size={14} style={{
-                  position: 'absolute', left: 14, top: '50%',
-                  transform: 'translateY(-50%)', color: 'var(--paper-dim)'
-                }} />
-                <input
-                  value={q}
-                  onChange={e => setQ(e.target.value)}
-                  placeholder="Search destinations..."
-                  aria-label="Search"
-                  className="input"
-                  style={{
-                    paddingLeft: 42, borderRadius: 100, fontSize: 13,
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid var(--border)',
-                  }}
-                />
-              </div>
-            </form>
-
-            {/* Notifications */}
-            <button
-              type="button"
-              title="Notifications"
-              className="btn-ghost"
-              style={{
-                width: 40, height: 40, borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '1px solid var(--border)',
-              }}
-            >
-              <Bell size={16} />
-            </button>
-
-            {/* Profile */}
+        {/* ── Desktop Nav Links ── */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
             <Link
-              to="/profile"
-              style={{
-                width: 40, height: 40, borderRadius: '50%',
-                background: 'var(--grad-orange)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, fontWeight: 800, color: 'var(--paper)',
-                textDecoration: 'none',
-                boxShadow: 'var(--shadow-orange)',
-              }}
+              key={link.to}
+              to={link.to}
+              onClick={(e) => handleLinkClick(e, link)}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all relative group ${isActive(link)
+                ? 'text-white bg-white/10'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
             >
-              <User size={16} />
+              {link.label}
+              {/* Underline indicator for active route (non-landing) */}
+              {isActive(link) && (
+                <motion.div
+                  layoutId="nav-active-indicator"
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-500"
+                />
+              )}
+              {/* Auth lock hint */}
+              {link.needsAuth && !isAuthenticated && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
             </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="hide-desktop btn-ghost"
-            onClick={() => setMobileOpen(o => !o)}
-            style={{ padding: 8 }}
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          ))}
         </div>
-      </motion.nav>
 
-      {/* Mobile Menu */}
+        {/* ── Right Actions ── */}
+        <div className="hidden md:flex items-center gap-4">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-5">
+              <div className="flex items-center gap-3 pr-4 border-r border-white/10">
+                <button className="text-gray-400 hover:text-white transition-colors relative">
+                  <Bell size={20} />
+                  {/* Notification dot */}
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-blue-500" />
+                </button>
+                <Link
+                  to="/TripPlanner"
+                  className="text-sm font-bold text-gray-400 hover:text-white transition-colors"
+                >
+                  My Trips
+                </Link>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link to="/profile" className="flex items-center gap-3 group">
+                  <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold border-2 border-white/20 overflow-hidden group-hover:border-blue-400 transition-colors">
+                    {user?.avatarUrl
+                      ? <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      : <User size={18} />
+                    }
+                  </div>
+                  <span className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
+                    {user?.displayName?.split(' ')[0]}
+                  </span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-red-400 hover:text-red-500 transition-colors hover:scale-110"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                className="px-6 py-2.5 rounded-xl font-bold text-sm text-white hover:bg-white/5 transition-all"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 hover:bg-blue-700 hover:scale-105 transition-all"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* ── Mobile Menu Toggle ── */}
+        <button
+          className="md:hidden p-2 text-white/70 hover:text-white transition-colors"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      {/* ── Mobile Menu ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25 }}
-            className="glass"
-            style={{
-              position: 'fixed', top: 72, left: 0, right: 0, zIndex: 999,
-              borderBottom: '1px solid var(--border-cyan)',
-              padding: '24px',
-            }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-[#030712] border-t border-white/10 overflow-hidden"
           >
-            {/* Mobile Search */}
-            <form onSubmit={submitSearch} style={{ marginBottom: 20 }}>
-              <div style={{ position: 'relative' }}>
-                <Search size={15} style={{
-                  position: 'absolute', left: 14, top: '50%',
-                  transform: 'translateY(-50%)', color: 'var(--paper-dim)'
-                }} />
-                <input
-                  className="input"
-                  placeholder="Search destinations..."
-                  value={q}
-                  onChange={e => setQ(e.target.value)}
-                  style={{ paddingLeft: 42, borderRadius: 100 }}
-                />
+            <div className="px-6 py-8 space-y-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={(e) => {
+                    handleLinkClick(e, link);
+                    setMobileOpen(false);
+                  }}
+                  className={`flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${location.pathname === link.to
+                    ? 'bg-white/10 text-white'
+                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    }`}
+                >
+                  <link.icon size={22} className="text-blue-600" />
+                  <span>{link.label}</span>
+                  {link.needsAuth && !isAuthenticated && (
+                    <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                      Login needed
+                    </span>
+                  )}
+                </Link>
+              ))}
+
+              {/* Mobile section quick-jumps (landing only) */}
+              {isLanding && (
+                <div className="pt-4 border-t border-white/5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 px-6 mb-3">
+                    Jump to section
+                  </p>
+                  {[
+                    { label: 'Features', action: () => { window.__tbScroll?.features(); setMobileOpen(false); } },
+                    { label: 'Trending', action: () => { window.__tbScroll?.trending(); setMobileOpen(false); } },
+                    { label: 'Stats', action: () => { window.__tbScroll?.stats(); setMobileOpen(false); } },
+                  ].map((s) => (
+                    <button
+                      key={s.label}
+                      onClick={s.action}
+                      className="w-full text-left flex items-center gap-4 px-6 py-3 rounded-2xl text-gray-500 hover:text-white hover:bg-white/5 font-bold text-sm transition-all"
+                    >
+                      <ChevronDown size={16} className="text-blue-600 rotate-[-90deg]" />
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Auth buttons */}
+              <div className="pt-6 mt-2 border-t border-white/10 grid grid-cols-2 gap-4">
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="flex items-center justify-center gap-2 p-4 bg-white/5 rounded-2xl font-bold text-white"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <User size={18} /> Profile
+                    </Link>
+                    <button
+                      onClick={() => { handleLogout(); setMobileOpen(false); }}
+                      className="flex items-center justify-center gap-2 p-4 bg-red-500/10 text-red-500 rounded-2xl font-bold"
+                    >
+                      <LogOut size={18} /> Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="flex items-center justify-center p-4 bg-white/5 rounded-2xl font-bold text-white"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="flex items-center justify-center p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-600/20"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
-            </form>
-
-            {/* Mobile Nav Links */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {navLinks.map(({ to, label, icon: Icon }) => {
-                const active = location.pathname === to
-                return (
-                  <Link
-                    key={to} to={to}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '14px 16px',
-                      borderRadius: 'var(--r-md)',
-                      background: active ? 'rgba(129,236,255,0.08)' : 'transparent',
-                      color: active ? 'var(--accent)' : 'var(--paper)',
-                      fontSize: 15, fontWeight: 600,
-                      border: active ? '1px solid rgba(129,236,255,0.2)' : '1px solid transparent',
-                      transition: 'all 0.2s',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <Icon size={16} />
-                    {label}
-                  </Link>
-                )
-              })}
-            </div>
-
-            {/* Mobile Auth Buttons */}
-            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-              <Link to="/login" className="btn btn-outline" style={{
-                flex: 1, justifyContent: 'center', fontSize: 14
-              }}>Sign In</Link>
-              <Link to="/gateway" className="btn btn-primary" style={{
-                flex: 1, justifyContent: 'center', fontSize: 14
-              }}>Get Started <ChevronRight size={14} /></Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
-  )
-}
+    </nav>
+  );
+};
+
+export default Navbar;
